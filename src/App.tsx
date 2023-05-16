@@ -1,37 +1,44 @@
 import React from "react";
-import { Layout } from "antd";
-import "antd/dist/reset.css";
-
-const { Content } = Layout;
+import { Header } from "./components/Header";
+import { Search } from "./components/Search";
+import { Weather } from "./components/Weather";
+import "./styles/app.scss";
 
 const App: React.FC = () => {
+  const [data, setData] = React.useState([]);
+
+  const weatherApi = () => {
+    let key = "5d943b67217a5dc72905bd868ceb2e3b";
+    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=mumbai&appid=${key}`)
+      .then((resp) => resp.json())
+      .then((resp) => {
+        getWeather(resp);
+        console.log(resp);
+      })
+      .catch((err) => console.log("could not fetch" + err));
+  };
+
+  const getWeather = (weather: any) => {
+    const { list } = weather;
+    const newArray = list?.filter(({ list }: any) => {
+      if (list.dt_txt.includes("15:00:00")) {
+        return list;
+      }
+    });
+    setData(newArray);
+  };
+
   return (
-    <div>
-      <Layout
-        style={{
-          alignItems: "center",
-          height: "100vh",
-          position: "relative",
-        }}
-      >
-        <Content
-          style={{
-            position: "absolute",
-            top: "50%",
-            transform: "translate(0, -50%)",
-            width: 500,
-            padding: 24,
-            margin: 0,
-            height: 280,
-            background: "red",
-            borderRadius: 6,
-            border: "1px solid black",
-          }}
-        >
-          Primary Button
-        </Content>
-      </Layout>
-    </div>
+    <>
+      <div className="container">
+        <div className="content">
+          <Header />
+          <Search />
+          <Weather data={data} />
+          <button onClick={() => weatherApi()}>Получить</button>
+        </div>
+      </div>
+    </>
   );
 };
 
